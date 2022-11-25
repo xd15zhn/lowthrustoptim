@@ -36,7 +36,7 @@ public:
     virtual void Optimize_OneStep() = 0;
 protected:
     UserFunc *_costFunc=nullptr;
-    double _TermCost, _MinCost;  // Current and minimum cost value
+    double _MinCost;  // minimum cost value
     std::vector<double> _BestSolution;
 };
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ctime>
 #include "zhnoptim.hpp"
 NAMESPACE_ZHNOPTIM_L
 
@@ -10,10 +11,10 @@ std::vector<double> Algorithm::Get_BestSolution() const { return _BestSolution; 
 Algorithm initialize
 **********************/
 Algorithm::Algorithm(const std::vector<double>& solution) {
-    _costFunc = nullptr;
+    srand(time(0));
     for (int i=0; i<(int)solution.size(); ++i)
         _BestSolution.push_back(solution[i]);
-    _MinCost = ZHNOPTIM_INFINITE; _TermCost = 1;
+    _MinCost = ZHNOPTIM_INFINITE;
     std::cout.precision(8);
 }
 Algorithm::~Algorithm() {}

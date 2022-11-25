@@ -48,7 +48,7 @@ public:
         int dur2 = 22464 - 15000/PI * atan(solution[17]*solution[17]);
         /*第一段发动机工作，为俯仰角和方位角分别设置三次函数*/
         cubic1->Set(solution[0], solution[4], solution[8], solution[12]);
-        cubic2->Set(solution[1], solution[5], solution[9], solution[13]);
+        cubic2->Set(0*solution[1], 1e-6*solution[5], 1e-3*solution[9], 1e-3*solution[13]);
         solver._inTheta->Set_Function(cubic1);
         solver._inPhi->Set_Function(cubic2);
         solver._cnstF->Set_OutValue(USV_F);
@@ -60,7 +60,7 @@ public:
             solver._sim1.Simulate_OneStep();
         /*第三段发动机工作，为俯仰角和方位角分别设置新的三次函数*/
         cubic1->Set(solution[2], solution[6], solution[10], solution[14]);
-        cubic2->Set(solution[3], solution[7], solution[11], solution[15]);
+        cubic2->Set(0*solution[3], 1e-6*solution[7], 1e-3*solution[11], 1e-3*solution[15]);
         solver._inTheta->Set_Function(cubic1);
         solver._inPhi->Set_Function(cubic2);
         solver._cnstF->Set_OutValue(USV_F);
