@@ -10,6 +10,7 @@ set(PROJECT_SOURCES
     ${PROJECT_SOURCE_DIR}/src/detector.cpp
     ${PROJECT_SOURCE_DIR}/src/zhnoptim.cpp
     ${PROJECT_SOURCE_DIR}/src/opt_de.cpp
+    ${PROJECT_SOURCE_DIR}/src/opt_ps.cpp
 )
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
@@ -24,5 +25,4 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC
     ${simucpp_LIBS}
-    # ${PROJECT_SOURCE_DIR}/../zhnoptim/build/libzhnoptim.a
 )

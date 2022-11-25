@@ -72,6 +72,8 @@ class Pattern_Search: public Algorithm{
 public:
     Pattern_Search(const std::vector<double>& solution, double deltaStart=0.25);
     virtual ~Pattern_Search();
+    virtual void Initialize() override;
+    virtual void Optimize_OneStep() override;
     void run();
     void Set_Param(double deltaStart);
 private:

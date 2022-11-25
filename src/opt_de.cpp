@@ -1,4 +1,5 @@
 #include <random>
+#include <ctime>
 #include <iostream>
 #include "zhnoptim.hpp"
 NAMESPACE_ZHNOPTIM_L
@@ -12,6 +13,7 @@ Differential Evolution algorithm initialize
 Differential_Evolution::Differential_Evolution(const std::vector<double> &solution, int popsizeeach)
     : Algorithm(solution)
 {
+    srand(time(0));
     _solvelen = solution.size();
     _popsize = popsizeeach * _solvelen;
     _F = _CR = 0.5;
