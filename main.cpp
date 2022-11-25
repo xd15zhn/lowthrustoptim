@@ -38,6 +38,7 @@ public:
     }
     virtual double Function(const std::vector<double>& solution) {
         int t=0;  // 总飞行时间
+        solver._sim1.Set_t(0);
         solver._mssr->Set_InitialValue(Mat(vecdble{
             -113.101881186742, 101.033358324501, 0.00219405859350417}));
         solver._mssv->Set_InitialValue(Mat(vecdble{
@@ -72,7 +73,6 @@ public:
         double err = errorr._x*errorr._x + errorr._y*errorr._y + errorr._z*errorr._z;
         err += 5*(errorv._x*errorv._x + errorv._y*errorv._y + errorv._z*errorv._z);
         err += (dur1 + 22464 - dur2) * 1e-2;
-        cout << err << "\r";
         return err;
     };
 private:
@@ -85,15 +85,27 @@ int main(void) {
     vecdble ans(18, 0);
     ans[12] = -1.57; ans[16] = 1;
     OrbitalOptimFunc *func1 = new OrbitalOptimFunc;
-    vecdble bestans;
-    double bestcost;
+    int epoch=0;
     Differential_Evolution alg(ans, 10);
     alg.Set_CostFunction(func1);
+    alg.Push_Solvsion(vecdble{
+        -0.333662, -1.27126, 0.414759, -0.493854, 0.47648, 1.45296,
+        0.434218, 0.827921, -0.322548, -1.07495, 0.037754, 0.0117591,
+        -1.36123, -0.639763, -0.25881, 0.156407, -0.947391, -0.467629,
+    });
+    alg.Push_Solvsion(vecdble{
+        0.301404, 1.01999, -0.739759, -0.528361, -1.21051, 0.757727,
+        0.427785, -0.712889, 0.312796, 0.338843, 0.382965, -0.420163,
+        -1.51195, -0.757546, 1.3516, -2.18992, 1.07293, -0.568964,
+    });
+    cout.precision(6);
     alg.Initialize();
-    cout << "First step finished." << endl;
+    cout << "\nFirst step finished." << endl;
     while (1) {
+        cout << "epoch:" << epoch << ", best cost:" << alg.Get_Cost() << ",  best solution:        " << endl;
+        alg.Print_Solution();
         alg.Optimize_OneStep();
-        bestcost = alg.Get_Cost();
+        epoch++;
     }
     return 0;
 }

@@ -18,8 +18,7 @@ Algorithm::Algorithm(const std::vector<double>& solution) {
     std::cout.precision(8);
 }
 Algorithm::~Algorithm() {}
-void Algorithm::Solution_Print() const {
-    std::cout << "\n";
+void Algorithm::Print_Solution() const {
     for (int i=0; i<_BestSolution.size(); ++i)
         std::cout << _BestSolution[i] << ", ";
     std::cout << std::endl;

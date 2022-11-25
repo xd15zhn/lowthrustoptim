@@ -12,12 +12,24 @@ Differential Evolution algorithm initialize
 Differential_Evolution::Differential_Evolution(const std::vector<double> &solution, int popsizeeach)
     : Algorithm(solution)
 {
-    double U, V;
     _solvelen = solution.size();
     _popsize = popsizeeach * _solvelen;
     _F = _CR = 0.5;
+    _given = 1;
     _population.push_back(_BestSolution);
-    for (int i = 1; i < _popsize; ++i){
+}
+void Differential_Evolution::Push_Solvsion(const std::vector<double>& solution) {
+    _given++;
+    _population.push_back(solution);
+}
+void Differential_Evolution::Print_Process(int i, double fit) const {
+    int process = i*100.0/double(_popsize)+0.5;
+    std::cout << "process:" << process << "\%,  fit:" << fit << "        \r";
+}
+void Differential_Evolution::Initialize() {
+    double fit, U, V;
+    ASSERT_ERROR_ALG(_costFunc, "Cost function isn't given!");
+    for (int i = _given; i < _popsize; ++i){
         _population.push_back(_BestSolution);
         for (int j=0; j<_solvelen; ++j) {
             U = (rand()+1.0) / (RAND_MAX+1.0);
@@ -25,11 +37,6 @@ Differential_Evolution::Differential_Evolution(const std::vector<double> &soluti
             _population[i][j] = sqrt(-2.0 * log(U))* cos(6.283185307179586477 * V);
         }
     }
-}
-
-void Differential_Evolution::Initialize() {
-    double fit;
-    ASSERT_ERROR_ALG(_costFunc, "Cost function isn't given!");
     _MinCost = _costFunc->Function(_population[0]);
     _BestSolution = _population[0];
     for (int i = 1; i < _popsize; ++i) {
@@ -37,8 +44,8 @@ void Differential_Evolution::Initialize() {
         if (fit < _MinCost) {
             _MinCost = fit;
             _BestSolution = _population[i];
-            Solution_Print();
         }
+        Print_Process(i, fit);
     }
 }
 void Differential_Evolution::Optimize_OneStep() {
@@ -70,9 +77,9 @@ void Differential_Evolution::Optimize_OneStep() {
             if (fit2 < _MinCost) {
                 _MinCost = fit2;
                 _BestSolution = _population[i];
-                Solution_Print();
             }
         }
+        Print_Process(i, fit1);
     }
 }
 

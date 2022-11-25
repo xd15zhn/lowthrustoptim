@@ -31,7 +31,7 @@ public:
     void Set_CostFunction(UserFunc *f);
     double Get_Cost() const;
     std::vector<double> Get_BestSolution() const;
-    void Solution_Print() const;
+    void Print_Solution() const;
     virtual void Initialize() = 0;
     virtual void Optimize_OneStep() = 0;
 protected:
@@ -53,11 +53,14 @@ public:
     virtual ~Differential_Evolution();
     virtual void Initialize() override;
     virtual void Optimize_OneStep() override;
+    void Push_Solvsion(const std::vector<double>& solution);
+    void Print_Process(int i, double fit) const;
     void Set_Param(double F, double CR);
 private:
     int _solvelen;
     std::vector<std::vector<double>> _population;
     int _popsize;  // number of the population
+    int _given;  // 给定初始解的数量
     double _F, _CR;  // 缩放因子,交叉因子
 };
 
