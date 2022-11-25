@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include "zhnoptim.hpp"
 NAMESPACE_ZHNOPTIM_L
 
@@ -9,8 +8,6 @@ std::vector<double> Algorithm::Get_BestSolution() const { return _BestSolution; 
 
 /***********************
 Algorithm initialize
-*@ solution: Initial solution vector
-*@ solvelen: Length of solution vector
 **********************/
 Algorithm::Algorithm(const std::vector<double>& solution) {
     _costFunc = nullptr;
@@ -20,5 +17,10 @@ Algorithm::Algorithm(const std::vector<double>& solution) {
     std::cout.precision(8);
 }
 Algorithm::~Algorithm() {}
-
+void Algorithm::Solution_Print() const {
+    std::cout << "\n";
+    for (int i=0; i<_BestSolution.size(); ++i)
+        std::cout << _BestSolution[i] << ", ";
+    std::cout << std::endl;
+}
 NAMESPACE_ZHNOPTIM_R

@@ -31,10 +31,11 @@ public:
     void Set_CostFunction(UserFunc *f);
     double Get_Cost() const;
     std::vector<double> Get_BestSolution() const;
+    void Solution_Print() const;
     virtual void Initialize() = 0;
     virtual void Optimize_OneStep() = 0;
 protected:
-    UserFunc *_costFunc;
+    UserFunc *_costFunc=nullptr;
     double _TermCost, _MinCost;  // Current and minimum cost value
     std::vector<double> _BestSolution;
 };
@@ -46,6 +47,8 @@ Differential Evolution(DE/best/2)
 class Differential_Evolution: public Algorithm
 {
 public:
+    // *@ solution: Initial solution vector
+    // *@ popsizeeach: 该数乘上待优化的参数数量为总的种群数量
     Differential_Evolution(const std::vector<double>& solution, int popsizeeach=15);
     virtual ~Differential_Evolution();
     virtual void Initialize() override;

@@ -1,5 +1,6 @@
 #include <random>
 #include <ctime>
+#include <iostream>
 #include "zhnoptim.hpp"
 NAMESPACE_ZHNOPTIM_L
 
@@ -8,9 +9,6 @@ void Differential_Evolution::Set_Param(double F, double CR) { _F=F;_CR=CR; }
 
 /***********************
 Differential Evolution algorithm initialize
-*@ solution: Initial solution vector
-*@ solvelen: Length of solution vector
-*@ popsize: number of the population
 **********************/
 Differential_Evolution::Differential_Evolution(const std::vector<double> &solution, int popsizeeach)
     : Algorithm(solution)
@@ -32,18 +30,21 @@ Differential_Evolution::Differential_Evolution(const std::vector<double> &soluti
 
 void Differential_Evolution::Initialize() {
     double fit;
+    ASSERT_ERROR_ALG(_costFunc, "Cost function isn't given!");
     _MinCost = _costFunc->Function(_population[0]);
     _BestSolution = _population[0];
-    for (short i = 1; i < _solvelen; i++) {
+    for (int i = 1; i < _popsize; ++i) {
         fit = _costFunc->Function(_population[i]);
         if (fit < _MinCost) {
             _MinCost = fit;
             _BestSolution = _population[i];
+            Solution_Print();
         }
     }
 }
 void Differential_Evolution::Optimize_OneStep() {
     std::vector<double> mutant, offspring;
+    mutant = offspring = _BestSolution;
     double fit1, fit2;  // 适应度值
     int in1, in2;  // 2个差分向量的个体编号
     for (short i = 0; i < _popsize; i++) {
@@ -54,6 +55,7 @@ void Differential_Evolution::Optimize_OneStep() {
             _F = (rand()+1.0) / (RAND_MAX+1.0);
             mutant[j] = _population[i][j] + _F*(_population[in1][j] - _population[in2][j]);
         }
+        std::cout << "\ndebug1" << std::endl;
         /*交叉:变异个体与原个体交叉产生后代个体*/
         for (short j = 0; j < _solvelen; j++) {
             if ((rand()+1.0) / (RAND_MAX+1.0) > _CR)
@@ -61,6 +63,7 @@ void Differential_Evolution::Optimize_OneStep() {
             else
                 offspring[j] = mutant[j];
         }
+        std::cout << "debug2" << std::endl;
         /*选择:后代个体与原个体竞争并保留优胜个体*/
         fit1 = _costFunc->Function(_population[i]);
         fit2 = _costFunc->Function(offspring);
@@ -70,8 +73,10 @@ void Differential_Evolution::Optimize_OneStep() {
             if (fit2 < _MinCost) {
                 _MinCost = fit2;
                 _BestSolution = _population[i];
+                Solution_Print();
             }
         }
+        std::cout << "\ndebug3" << std::endl;
     }
 }
 

@@ -42,9 +42,10 @@ public:
             -113.101881186742, 101.033358324501, 0.00219405859350417}));
         solver._mssv->Set_InitialValue(Mat(vecdble{
             -19.3527970698371, -22.1182257893965, -0.000451706663468062}));
+        solver._intM->Set_InitialValue(USV_M);
         /*分别设置第一段和第三段的发动机工作时间*/
-        int dur1 = 25000/PI * atan(solution[16]);
-        int dur2 = 22464 - 15000/PI * atan(solution[17]);
+        int dur1 = 25000/PI * atan(solution[16]*solution[16]);
+        int dur2 = 22464 - 15000/PI * atan(solution[17]*solution[17]);
         /*第一段发动机工作，为俯仰角和方位角分别设置三次函数*/
         cubic1->Set(solution[0], solution[4], solution[8], solution[12]);
         cubic2->Set(solution[1], solution[5], solution[9], solution[13]);
@@ -69,8 +70,10 @@ public:
         Vector3d errorr = Vector3d(solver._mssr->Get_OutValue()) - tgtr;
         Vector3d errorv = Vector3d(solver._mssv->Get_OutValue()) - tgtv;
         double err = errorr._x*errorr._x + errorr._y*errorr._y + errorr._z*errorr._z;
-        err += errorv._x*errorv._x + errorv._y*errorv._y + errorv._z*errorv._z;
-        return err + (dur1 + 22464 - dur2) * 1e-2;
+        err += 5*(errorv._x*errorv._x + errorv._y*errorv._y + errorv._z*errorv._z);
+        err += (dur1 + 22464 - dur2) * 1e-2;
+        cout << err << "\r";
+        return err;
     };
 private:
     Orbital_Solver solver;
@@ -80,19 +83,17 @@ private:
 
 int main(void) {
     vecdble ans(18, 0);
+    ans[12] = -1.57; ans[16] = 1;
     OrbitalOptimFunc *func1 = new OrbitalOptimFunc;
     vecdble bestans;
     double bestcost;
-    Differential_Evolution alg(ans);
+    Differential_Evolution alg(ans, 10);
     alg.Set_CostFunction(func1);
-    cout << "test2" << endl;
     alg.Initialize();
-    cout << "test2" << endl;
+    cout << "First step finished." << endl;
     while (1) {
         alg.Optimize_OneStep();
-        cout << "test2" << endl;
         bestcost = alg.Get_Cost();
-        cout << bestcost << endl;
     }
     return 0;
 }
