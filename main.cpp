@@ -5,39 +5,42 @@
 #include "parameters.hpp"
 #include "zhnoptim.hpp"
 using namespace zhnoptim;
-// using namespace zhnoptim;
 
-class Cubic: public simucpp::UserFunc
-{
-public:
-    // Cubic(double a, double b, double c, double d):
-    //     _a(a), _b(b),_c(c), _d(d) {}
-    void Set(double a, double b, double c, double d)
-        {_a=a; _b=b;_c=c; _d=d;}
-    virtual double Function(double t) const {
-        double ans = _a*t + _b;
-        ans = ans*t + _c;
-        ans = ans*t + _d;
-        return ans;
-    };
-private:
-    double _a, _b, _c, _d;
-};
-
+// 损失函数
 class OrbitalOptimFunc: public zhnoptim::UserFunc
 {
 public:
     OrbitalOptimFunc() {
-        cubic1 = new Cubic;
-        cubic2 = new Cubic;
         tgtr = Vector3d(177.411257719326, -106.002308439472, -6.57918956193115);
         tgtv = Vector3d(19.561773277048, 22.9483294968687, 4.68994956398122e-04);
     }
-    ~OrbitalOptimFunc() {
-        delete cubic1, cubic2;
-    }
     virtual double Function(const std::vector<double>& solution) {
         int t=0;  // 总飞行时间
+    // 以下为4个三次多项式
+        function<double(double)> cubicFunc1 = [solution](double t){
+            double ans = solution[0]*t + solution[4];
+            ans = ans*t + solution[8];
+            ans = ans*t + solution[12];
+            return ans;
+        };
+        function<double(double)> cubicFunc2 = [solution](double t){
+            double ans = 1e-5*solution[1]*t + 1e-5*solution[5];
+            ans = ans*t + 0.01*solution[9];
+            ans = ans*t + 0.01*solution[13];
+            return ans;
+        };
+        function<double(double)> cubicFunc3 = [solution](double t){
+            double ans = solution[2]*t + solution[6];
+            ans = ans*t + solution[10];
+            ans = ans*t + solution[14];
+            return ans;
+        };
+        function<double(double)> cubicFunc4 = [solution](double t){
+            double ans = 1e-5*solution[3]*t + 1e-5*solution[7];
+            ans = ans*t + 0.01*solution[11];
+            ans = ans*t + 0.01*solution[15];
+            return ans;
+        };
         solver._sim1.Set_t(0);
         solver._mssr->Set_InitialValue(Mat(vecdble{
             -113.101881186742, 101.033358324501, 0.00219405859350417}));
@@ -48,10 +51,8 @@ public:
         int dur1 = 25000/PI * atan(solution[16]*solution[16]);
         int dur2 = 22464 - 15000/PI * atan(solution[17]*solution[17]);
         /*第一段发动机工作，为俯仰角和方位角分别设置三次函数*/
-        cubic1->Set(solution[0], solution[4], solution[8], solution[12]);
-        cubic2->Set(1e-5*solution[1], 1e-5*solution[5], 0.01*solution[9], 0.01*solution[13]);
-        solver._inTheta->Set_Function(cubic1);
-        solver._inPhi->Set_Function(cubic2);
+        solver._inTheta->Set_Function(cubicFunc1);
+        solver._inPhi->Set_Function(cubicFunc2);
         solver._cnstF->Set_OutValue(USV_F);
         for (; t < dur1; t++)
             solver._sim1.Simulate_OneStep();
@@ -60,10 +61,8 @@ public:
         for (; t < dur2; t++)
             solver._sim1.Simulate_OneStep();
         /*第三段发动机工作，为俯仰角和方位角分别设置新的三次函数*/
-        cubic1->Set(solution[2], solution[6], solution[10], solution[14]);
-        cubic2->Set(1e-5*solution[3], 1e-5*solution[7], 0.01*solution[11], 0.01*solution[15]);
-        solver._inTheta->Set_Function(cubic1);
-        solver._inPhi->Set_Function(cubic2);
+        solver._inTheta->Set_Function(cubicFunc3);
+        solver._inPhi->Set_Function(cubicFunc4);
         solver._cnstF->Set_OutValue(USV_F);
         for (; t < 22464; t++)
             solver._sim1.Simulate_OneStep();
@@ -77,11 +76,10 @@ public:
     };
 private:
     Orbital_Solver solver;
-    Cubic *cubic1=nullptr, *cubic2=nullptr;
     Vector3d tgtr, tgtv;
 };
 
-#define USE_PS
+#define USE_PS  // 切换差分进化算法与模式搜索算法
 int main(void) {
     // vecdble ans(18, 0);
     // ans[12] = -1.57; ans[16] = 1;
